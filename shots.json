@@ -1,0 +1,34 @@
+[
+ {
+  "file": "1-ledger.jpg",
+  "path": "screenshots/1-ledger.jpg",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  }
+ },
+ {
+  "file": "2-roadmap.jpg",
+  "path": "screenshots/2-roadmap.jpg",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  }
+ },
+ {
+  "file": "3-missables.jpg",
+  "path": "screenshots/3-missables.jpg",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  }
+ },
+ {
+  "file": "4-spoilers.jpg",
+  "path": "screenshots/4-spoilers.jpg",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  }
+ }
+]
