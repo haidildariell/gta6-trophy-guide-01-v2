@@ -1,6 +1,6 @@
 # Leonida Legend v2 — GTA 6 Trophy Guide & Tracker
 
-[![Watch the build](https://make.fun/api/badges/gta6-trophy-guide-01/live.gif)](https://make.fun/bounty/gta6-trophy-guide-01) [![Leaderboard](https://make.fun/api/badges/gta6-trophy-guide-01/leaderboard.svg)](https://make.fun/bounty/gta6-trophy-guide-01) [![Bounty](https://make.fun/api/badges/gta6-trophy-guide-01/bounty.svg)](https://make.fun/bounty/gta6-trophy-guide-01)
+[![Leonida Legend v2 on make.fun](https://make.fun/badge/gta6-trophy-guide-01.svg)](https://make.fun/bounty/gta6-trophy-guide-01) [![Rank](https://make.fun/badge/gta6-trophy-guide-01/haidildariell/gta6-trophy-guide-01-v2/rank.svg)](https://make.fun/bounty/gta6-trophy-guide-01) [![Reward](https://make.fun/badge/gta6-trophy-guide-01/haidildariell/gta6-trophy-guide-01-v2/reward.svg)](https://make.fun/bounty/gta6-trophy-guide-01)
 
 Bounty: https://make.fun/bounty/gta6-trophy-guide-01
 
