@@ -1,61 +1,59 @@
 "use strict";
-/* Leonida Legend — filter state for the Ledger checklist. */
+/* Leonida Legend — ledger filter state and matching.
+   One plain object holds every control; views read it, main.js mutates it. */
 
 const KINDS = ["story", "collectible", "activity", "online", "completion", "misc"];
 const GRADES = ["Platinum", "Gold", "Silver", "Bronze"];
+const MISSABLE_LABEL = { possibly: "Possibly missable", watch: "Watch", unconfirmed: "Unconfirmed" };
 
-const filters = {
-  text: "",
+const Filters = {
+  search: "",
   kinds: new Set(),
   grades: new Set(),
   stage: "",
   hideEarned: false,
-  spoilers: false
+  spoilers: false,
+
+  matches: function (t) {
+    if (this.hideEarned && Store.isEarned(t.id)) return false;
+    if (this.stage && t.stage !== this.stage) return false;
+    if (this.kinds.size && !this.kinds.has(t.kind)) return false;
+    if (this.grades.size && !this.grades.has(t.grade)) return false;
+    if (this.search) {
+      const hay = (t.name + " " + t.description + " " + t.kind + " " + t.grade + " " + t.stage + " " + stageOf(t.stage).name).toLowerCase();
+      if (hay.indexOf(this.search.toLowerCase()) === -1) return false;
+    }
+    return true;
+  },
+
+  /* A trophy is sealed when spoilers are on, it is hidden, and not yet earned. */
+  isSealed: function (t) {
+    return this.spoilers && t.hidden && !Store.isEarned(t.id);
+  },
+
+  toggleSetValue: function (set, value) {
+    if (set.has(value)) set.delete(value); else set.add(value);
+  }
 };
 
-function trophyMatches(t, f) {
-  if (f.hideEarned && store.isEarned(t.id)) return false;
-  if (f.stage && t.stage !== f.stage) return false;
-  if (f.kinds.size && !f.kinds.has(t.kind)) return false;
-  if (f.grades.size && !f.grades.has(t.grade)) return false;
-  if (f.text) {
-    const hay = (t.name + " " + t.description + " " + t.kind + " " + t.grade).toLowerCase();
-    if (hay.indexOf(f.text.toLowerCase()) === -1) return false;
-  }
-  return true;
+function esc(text) {
+  return String(text == null ? "" : text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-function clearFilters() {
-  filters.text = "";
-  filters.kinds.clear();
-  filters.grades.clear();
-  filters.stage = "";
-  filters.hideEarned = false;
+function medalDot(grade) {
+  return '<span class="medal medal-' + grade.toLowerCase() + '" title="' + esc(grade) + '"></span>';
 }
 
-/* A hidden trophy is sealed while spoilers are on and it is not yet earned. */
-function isSealed(t) {
-  return filters.spoilers && t.hidden && !store.isEarned(t.id);
+function citeMarks(cite) {
+  if (!cite || !cite.length) return "";
+  return ' <span class="cites">' + cite.map(function (n) { return "[" + n + "]"; }).join("") + "</span>";
 }
 
-function displayName(t) {
-  return isSealed(t) ? "Sealed trophy" : t.name;
-}
-
-function chipRow(label, values, activeSet, onToggle) {
-  const wrap = document.createElement("div");
-  wrap.className = "chip-row";
-  const lab = document.createElement("span");
-  lab.className = "chip-label";
-  lab.textContent = label;
-  wrap.appendChild(lab);
-  values.forEach(function (v) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "chip" + (activeSet.has(v) ? " is-on" : "");
-    b.textContent = v;
-    b.addEventListener("click", function () { onToggle(v); });
-    wrap.appendChild(b);
-  });
-  return wrap;
+function missableBadge(t) {
+  if (!t.missable) return "";
+  return '<span class="badge badge-' + t.missable + '">' + esc(MISSABLE_LABEL[t.missable]) + "</span>";
 }

@@ -1,109 +1,110 @@
 "use strict";
-/* Leonida Legend — bootstrap: load data, paint the audit strip, route views.
-   URL params: ?demo=1 ?view=ledger|roadmap|missables|sources ?open=<id> ?spoilers=on|off */
+/* Leonida Legend — bootstrap: load data, build the audit strip from the
+   data itself, wire navigation and header actions, honour URL params.
+   Params: ?demo=1 ?view=ledger|roadmap|missables|sources ?open=<id> ?spoilers=on|off */
 
-const VALID_VIEWS = ["ledger", "roadmap", "missables", "sources"];
-let TROPHIES = [];
-let currentView = "ledger";
+const App = {
+  trophies: [],
+  view: "ledger",
 
-function auditLine(trophies) {
-  const grades = { Platinum: 0, Gold: 0, Silver: 0, Bronze: 0 };
-  let hidden = 0;
-  let steps = 0;
-  let citedSteps = 0;
-  let guidesWithSource = 0;
-  const miss = { possibly: 0, watch: 0, unconfirmed: 0 };
-  trophies.forEach(function (t) {
-    grades[t.grade] = (grades[t.grade] || 0) + 1;
-    if (t.hidden) hidden += 1;
-    if (t.sources && t.sources.length) guidesWithSource += 1;
-    if (miss[t.missable] !== undefined) miss[t.missable] += 1;
-    (t.guide.steps || []).forEach(function (s) {
-      steps += 1;
-      if (s.cite && s.cite.length) citedSteps += 1;
+  showView: function (name) {
+    this.view = name;
+    document.querySelectorAll(".view-btn").forEach(function (b) {
+      b.classList.toggle("is-active", b.getAttribute("data-view") === name);
     });
-  });
-  return trophies.length + " official · " +
-    grades.Platinum + "P " + grades.Gold + "G " + grades.Silver + "S " + grades.Bronze + "B · " +
-    hidden + " hidden · " +
-    guidesWithSource + "/" + trophies.length + " guides cite a source · " +
-    citedSteps + "/" + steps + " steps cited · " +
-    SOURCES.length + " sources read 20 Nov 2026 · " +
-    miss.possibly + " possibly missable · " + miss.watch + " watch · " + miss.unconfirmed + " unconfirmed";
-}
+    const root = document.getElementById("view");
+    const ctx = { trophies: this.trophies, showView: function (v) { App.showView(v); } };
+    if (name === "roadmap") RoadmapView.render(root, ctx);
+    else if (name === "missables") MissablesView.render(root, ctx);
+    else if (name === "sources") SourcesView.render(root, ctx);
+    else LedgerView.render(root, ctx);
+  },
 
-function paintAudit() {
-  const audit = document.getElementById("audit");
-  if (audit) audit.textContent = auditLine(TROPHIES);
-  const line = document.getElementById("progress-line");
-  if (line) {
-    const earnedCount = TROPHIES.filter(function (t) { return store.isEarned(t.id); }).length;
-    const pts = pointsEarned(TROPHIES);
-    const lvl = psnLevel(pts);
-    line.textContent = earnedCount + "/55 earned · " + pts + "/" + pointsTotal(TROPHIES) +
-      " pts · PSN level " + lvl.level;
-  }
-}
-
-function render() { renderKeep(); }
-
-function renderKeep() {
-  paintAudit();
-  document.querySelectorAll(".view-btn").forEach(function (b) {
-    b.classList.toggle("is-active", b.getAttribute("data-view") === currentView);
-  });
-  const view = document.getElementById("view");
-  if (currentView === "ledger") renderLedger(view, TROPHIES, renderKeep);
-  else if (currentView === "roadmap") renderRoadmap(view, TROPHIES);
-  else if (currentView === "missables") renderMissables(view, TROPHIES);
-  else if (currentView === "sources") renderSources(view, TROPHIES);
-}
-
-function applyParams() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("demo") === "1" && !sessionStorage.getItem("ll-demo-seeded")) {
-    seedDemo(TROPHIES);
-    sessionStorage.setItem("ll-demo-seeded", "1");
-  }
-  const v = params.get("view");
-  if (v && VALID_VIEWS.indexOf(v) !== -1) currentView = v;
-  const open = parseInt(params.get("open") || "", 10);
-  if (!Number.isNaN(open) && TROPHIES.some(function (t) { return t.id === open; })) selectedId = open;
-  const sp = params.get("spoilers");
-  if (sp === "on") filters.spoilers = true;
-  if (sp === "off") filters.spoilers = false;
-}
-
-function wireChrome() {
-  document.querySelectorAll(".view-btn").forEach(function (b) {
-    b.addEventListener("click", function () {
-      currentView = b.getAttribute("data-view") || "ledger";
-      const params = new URLSearchParams(window.location.search);
-      params.set("view", currentView);
-      history.replaceState(null, "", window.location.pathname + "?" + params.toString());
-      renderKeep();
+  auditText: function () {
+    const t = this.trophies;
+    const count = function (fn) { return t.filter(fn).length; };
+    const grades = {
+      Platinum: count(function (x) { return x.grade === "Platinum"; }),
+      Gold: count(function (x) { return x.grade === "Gold"; }),
+      Silver: count(function (x) { return x.grade === "Silver"; }),
+      Bronze: count(function (x) { return x.grade === "Bronze"; })
+    };
+    const hidden = count(function (x) { return x.hidden; });
+    const guidesCited = count(function (x) { return x.sources && x.sources.length >= 1; });
+    let steps = 0, citedSteps = 0;
+    t.forEach(function (x) {
+      x.guide.steps.forEach(function (s) {
+        steps += 1;
+        if (s.cite && s.cite.length >= 1) citedSteps += 1;
+      });
     });
-  });
-  const exp = document.getElementById("btn-export");
-  if (exp) exp.addEventListener("click", downloadExport);
-  const imp = document.getElementById("file-import");
-  if (imp) imp.addEventListener("change", function () {
-    if (imp.files && imp.files[0]) {
-      importFromFile(imp.files[0], function () { renderKeep(); });
+    const tier = function (k) { return count(function (x) { return x.missable === k; }); };
+    return t.length + " official · " +
+      grades.Platinum + "P " + grades.Gold + "G " + grades.Silver + "S " + grades.Bronze + "B · " +
+      hidden + " hidden · " +
+      guidesCited + "/" + t.length + " guides cite a source · " +
+      citedSteps + "/" + steps + " steps cited · " +
+      SOURCES.length + " sources read 20 Nov 2026 · " +
+      tier("possibly") + " possibly missable · " +
+      tier("watch") + " watch · " +
+      tier("unconfirmed") + " unconfirmed";
+  },
+
+  seedDemo: function () {
+    const demoEarned = [2, 3, 4, 8, 9, 10, 16, 21, 22, 33, 35, 36, 42];
+    demoEarned.forEach(function (id) { Store.setEarned(id, true); });
+    Store.setCount(15, 87);
+    Store.setCount(25, 3);
+    Store.setCount(31, 34);
+    Store.setCount(35, 100);
+    Store.setCount(42, 52);
+    Store.setCount(48, 132);
+    Store.setNote(37, "Save before VCIA Takedown — try the departure on the first pass.");
+  },
+
+  init: async function () {
+    Store.load();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") === "1" && !sessionStorage.getItem("leonida-demo-seeded")) {
+      this.seedDemo();
+      try { sessionStorage.setItem("leonida-demo-seeded", "1"); } catch (e) { /* ignore */ }
     }
-  });
-  const rst = document.getElementById("btn-reset");
-  if (rst) rst.addEventListener("click", function () { store.reset(); renderKeep(); });
-}
+    if (params.get("spoilers") === "on") Filters.spoilers = true;
+    if (params.get("spoilers") === "off") Filters.spoilers = false;
 
-loadTrophies()
-  .then(function (trophies) {
-    TROPHIES = trophies;
-    applyParams();
-    wireChrome();
-    renderKeep();
-  })
-  .catch(function (err) {
-    const view = document.getElementById("view");
-    if (view) view.textContent = "Could not load trophy data: " + err.message;
+    this.trophies = await loadTrophies();
+    document.getElementById("audit").textContent = this.auditText();
+
+    const openId = Number(params.get("open"));
+    if (openId && this.trophies.some(function (t) { return t.id === openId; })) {
+      LedgerView.selectedId = openId;
+    }
+    const startView = params.get("view");
+    this.showView(["ledger", "roadmap", "missables", "sources"].indexOf(startView) >= 0 ? startView : "ledger");
+
+    document.querySelectorAll(".view-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () { App.showView(btn.getAttribute("data-view")); });
+    });
+    document.getElementById("btn-export").addEventListener("click", function () { Store.exportJSON(); });
+    document.getElementById("btn-reset").addEventListener("click", function () {
+      if (window.confirm("Reset all progress, counts and notes?")) {
+        Store.reset();
+        App.showView(App.view);
+      }
+    });
+    document.getElementById("import-file").addEventListener("change", function (ev) {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      Store.importJSON(file, function (ok) {
+        if (ok) App.showView(App.view);
+        else window.alert("That file could not be read as Leonida Legend progress.");
+      });
+    });
+  }
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+  App.init().catch(function (err) {
+    document.getElementById("view").innerHTML = '<p class="card">Failed to start: ' + esc(err.message) + "</p>";
   });
+});

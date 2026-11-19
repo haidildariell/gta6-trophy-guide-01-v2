@@ -1,65 +1,38 @@
 "use strict";
-/* Leonida Legend — Missables view: the three caution tiers, with notes. */
+/* Leonida Legend — Missables view: the eleven flagged trophies grouped
+   by confidence tier, each with its note. "Sources disagree" marks the
+   flags where the read sources do not tell the same story. */
 
-const MISSABLE_TIERS = [
-  { key: "possibly", title: "Possibly missable", blurb: "Evidence points to a real lock. Do these before the story moves past them, or keep a save." },
-  { key: "watch", title: "Watch", blurb: "Probably safe, but strand-style trophies have a habit of stalling. Clear them before the finale." },
-  { key: "unconfirmed", title: "Unconfirmed", blurb: "The descriptions are vague and guides have not converged. Best current readings are noted; normal play likely covers them." }
-];
+const DISAGREE_IDS = { 37: true, 38: true, 48: true, 49: true, 51: true };
 
-/* Trophies where the sources visibly disagree get an extra tag. */
-const DISAGREE_IDS = { 22: true, 23: true, 24: true, 26: true, 27: true, 37: true, 38: true, 48: true, 50: true };
-
-function renderMissables(root, trophies) {
-  root.innerHTML = "";
-  const wrap = document.createElement("div");
-  wrap.className = "missables";
-
-  const intro = document.createElement("p");
-  intro.className = "view-intro";
-  intro.textContent = "Nothing on the official list is confirmed missable. This page tracks the trophies worth caution, tiered by how strong the evidence is — and says plainly where sources disagree.";
-  wrap.appendChild(intro);
-
-  MISSABLE_TIERS.forEach(function (tier) {
-    const group = trophies.filter(function (t) { return t.missable === tier.key; });
-    const sec = document.createElement("section");
-    sec.className = "tier-card tier-" + tier.key;
-
-    const h = document.createElement("h2");
-    h.textContent = tier.title + " (" + group.length + ")";
-    sec.appendChild(h);
-    const blurb = document.createElement("p");
-    blurb.className = "tier-blurb";
-    blurb.textContent = tier.blurb;
-    sec.appendChild(blurb);
-
-    group.forEach(function (t) {
-      const card = document.createElement("article");
-      card.className = "missable-card";
-      const dot = document.createElement("span");
-      dot.className = "medal medal-" + t.grade.toLowerCase();
-      card.appendChild(dot);
-      const body = document.createElement("div");
-      const name = document.createElement("strong");
-      name.textContent = t.name + (store.isEarned(t.id) ? " ✓ earned" : "");
-      body.appendChild(name);
-      body.appendChild(document.createTextNode(" — " + t.description));
-      const note = document.createElement("p");
-      note.className = "missable-note";
-      note.textContent = t.missableNote || "";
-      body.appendChild(note);
-      if (DISAGREE_IDS[t.id]) {
-        const tag = document.createElement("span");
-        tag.className = "disagree-tag";
-        tag.textContent = "sources disagree";
-        body.appendChild(tag);
-      }
-      card.appendChild(body);
-      sec.appendChild(card);
+const MissablesView = {
+  render: function (root, ctx) {
+    const tiers = [
+      { key: "possibly", title: "Possibly missable", blurb: "Best evidence says a real window exists. Protect these with a manual save." },
+      { key: "watch", title: "Watch", blurb: "Not proven missable, but each depends on a partner, a chain or a clean attempt. Handle with care." },
+      { key: "unconfirmed", title: "Unconfirmed", blurb: "The descriptions are too vague to call. Attempts are cheap; keep a save and try." }
+    ];
+    const groups = tiers.map(function (tier) {
+      const mine = ctx.trophies.filter(function (t) { return t.missable === tier.key; });
+      const cards = mine.map(function (t) {
+        const sealed = Filters.isSealed(t);
+        return '<article class="card miss-card"><h3>' + medalDot(t.grade) +
+          ' <button type="button" class="miss-name" data-open="' + t.id + '">' + (sealed ? "Hidden trophy" : esc(t.name)) + "</button>" +
+          (sealed ? ' <span class="seal">SEALED</span>' : "") + "</h3>" +
+          (sealed ? "" : '<p class="official">“' + esc(t.description) + '”</p>') +
+          '<p>' + esc(t.missableNote || "") + "</p>" +
+          '<p class="meta-line">' + t.stage + " · " + esc(stageOf(t.stage).name) + (Store.isEarned(t.id) ? ' · <span class="done-mark">earned — safe now</span>' : " · not yet earned") + " · sources " + t.sources.map(function (n) { return "[" + n + "]"; }).join("") +
+          (DISAGREE_IDS[t.id] ? ' · <span class="badge badge-disagree">sources disagree</span>' : "") + "</p></article>";
+      }).join("");
+      return '<section class="miss-group"><h2>' + tier.title + ' <span class="muted">(' + mine.length + ")</span></h2>" +
+        '<p class="muted">' + tier.blurb + "</p>" + cards + "</section>";
+    }).join("");
+    root.innerHTML = '<div class="stack"><p class="lede">Eleven of the 55 trophies carry a missable flag. Everything else can be cleaned up in free roam after the credits — these eleven get a plan and a save file.</p>' + groups + "</div>";
+    root.querySelectorAll("[data-open]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        LedgerView.selectedId = Number(btn.getAttribute("data-open"));
+        ctx.showView("ledger");
+      });
     });
-
-    wrap.appendChild(sec);
-  });
-
-  root.appendChild(wrap);
-}
+  }
+};

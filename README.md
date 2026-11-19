@@ -4,78 +4,34 @@
 
 Bounty: https://make.fun/bounty/gta6-trophy-guide-01
 
-An offline trophy guide and progress tracker for the official 55-trophy
-Grand Theft Auto VI list (PlayStation 5): 1 Platinum, 2 Gold, 6 Silver,
-46 Bronze — 28 of them hidden.
-
-## What it is
-
-Open `app/index.html` and you get the whole hunt on one screen:
-
-- **Ledger** — the main view. A filterable checklist of all 55 trophies
-  (search, kind and grade chips, stage filter, hide-earned), a full guide
-  pane for the selected trophy, and a right rail with your next five
-  trophies plus the source list. Every guide step ends with citation
-  markers, e.g. [3][7], pointing at the numbered sources behind it.
-- **Roadmap** — the seven-stage route: first hours, story halves, story
-  finish, collectibles and counts, activities and mastery, then the
-  100 percent and Platinum sweep, each with its own progress bar.
-- **Missables** — nothing on the list is confirmed missable, so this page
-  tiers the caution cases honestly: 2 possibly missable, 5 to watch,
-  4 unconfirmed, each with a note and a "sources disagree" tag where the
-  guides genuinely conflict.
-- **Sources** — the seven sources behind the guides, when they were read
-  (20 Nov 2026), and how many of the 55 guides cite each one.
-
-The audit strip under the header recomputes the list's vital statistics
-from the data at runtime — totals, hidden count, citation coverage and
-missable tiers — so what you see is always what the data says.
+A fully offline trophy guide and tracker for Grand Theft Auto VI on PlayStation 5. All 55 official trophies, each with an original short guide and cited steps, a seven-stage platinum roadmap, an honest missables board, and a progress tracker that lives entirely in your browser — no account, no network, no installs.
 
 ## Features
 
-- Fully offline: no accounts, no network calls beyond the local files.
-- Progress tracking in `localStorage`: earned checkboxes, per-trophy
-  counters for count-based trophies, and private notes per trophy.
-- Export, import and reset your progress as JSON from the header.
-- PSN points and level computed from your earned set.
-- Spoiler seal: hidden trophies can be shown as sealed placeholders
-  until you earn them (toggle in the Ledger, or `?spoilers=on`).
-- Handy URL parameters: `?demo=1` seeds sample progress, `?view=` picks
-  the opening view, `?open=<id>` selects a trophy in the Ledger.
+- **Ledger** — the whole hunt on one screen: filters and the 55-trophy checklist on the left, the selected trophy's full guide in the middle (official description, short guide, numbered steps with citation markers, missable warnings, a counter for count trophies, and your own notes), and a Next Up panel plus sources rail on the right.
+- **Roadmap** — seven stages from "First hours" to "100% & Platinum", each with its trophies and a progress bar in earned count and PSN points.
+- **Missables** — the 11 flagged trophies grouped as Possibly missable (2), Watch (5) and Unconfirmed (4), each with its reasoning and a "sources disagree" tag where the sources genuinely split.
+- **Sources** — the seven numbered sources behind the guide, with per-source citation counts and the method note.
+- **Tracker** — earned checkboxes, per-trophy counters and notes, PSN points and level, spoiler mode that seals unearned hidden trophies, demo mode, and export / import / reset of your progress (localStorage only).
+- **Audit strip** — the header recomputes its counts from the data at runtime, so what it claims is what the data contains.
+
+## Screenshots
+
+Four shots live in `screenshots/` and are specified in `shots.json`: the demo ledger with a possibly-missable trophy open, the roadmap, the missables board, and spoiler mode sealing a hidden trophy.
 
 ## How to run
 
-Any static server works. With Node (no dependencies, no build step):
-
-```sh
-node serve.ts
-# then open http://localhost:8080
-```
-
-Or serve the folder directly, for example:
-
-```sh
-python3 -m http.server 8091 --directory app
-```
-
-Screenshots of each view live in `screenshots/`; `shots.json` records
-exactly which URL produced each one, so they can be re-shot at any time.
-
-To rebuild and validate the entry dossier:
-
-```sh
-MAKEFUN_OUTPUT_DIR=out node main.ts
-```
-
-`main.ts` validates the trophy data (exactly 55 trophies, every guide
-step cited) and writes a deterministic `entry.json` summary — running
-it twice gives byte-identical output.
+- Build the entry dossier: `node main.ts` — validates `app/data/trophies.json` (55 trophies, every step cited) and writes a deterministic `out/entry.json` (or `$MAKEFUN_OUTPUT_DIR/entry.json`).
+- Preview the app: `node serve.ts`, then open the local address it prints (port 8080) — or serve the `app/` folder with any static file server.
+- Handy URL parameters: `?demo=1` seeds sample progress, `?view=roadmap` (or `missables` / `sources`) opens a view, `?open=37` selects a trophy, `?spoilers=on` seals hidden trophies.
 
 ## Data & sources
 
-Trophy names, descriptions and grades in `app/data/trophies.json` are
-the official list values. The guides themselves are written for this
-tracker: every step cites the sources behind it by number — 1 Exophase,
-2 PSNProfiles, 3 PowerPyx, 4 PlayStationTrophies.org, 5 TrueTrophies,
-6 KeenGamer, 7 GTA Wiki — all read on 20 Nov 2026. Where sources
-disagree, the tracker says so rather than quietly picking a side.
+Trophy names, descriptions and grades reproduce the official published list exactly, so the tracker matches what the console shows. The guides themselves are original writing for this tracker — nothing is copied from the sources. Every guide step cites the numbered sources behind it: 1 Exophase (official trophy list mirror), 2 PSNProfiles, 3 PowerPyx, 4 PlayStationTrophies.org, 5 TrueTrophies, 6 KeenGamer, 7 GTA Wiki — all read 20 Nov 2026. Hidden flags (28 of 55) follow the official descriptions: story progression and deliberately vague one-liners. Missable calls are judgement from those descriptions and are labelled by confidence rather than presented as fact.
+
+## Layout
+
+- `app/` — the offline web app (HTML, CSS, vanilla JS, `data/trophies.json`).
+- `main.ts` — validation + deterministic dossier builder.
+- `serve.ts` — zero-dependency static preview server.
+- `shots.json` + `screenshots/` — the screenshot set and how each shot was framed.

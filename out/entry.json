@@ -1,36 +1,44 @@
 {
-  "audit": "55 official · 1P 2G 6S 46B · 28 hidden · 55/55 guides cite a source · 165/165 steps cited · 7 sources read 20 Nov 2026 · 2 possibly missable · 5 watch · 4 unconfirmed",
+  "app": "app/index.html",
   "competition": "gta6-trophy-guide-01",
-  "counts": {
-    "citedSteps": 165,
-    "grades": {
+  "dataSha256": "48ac9ec1aeda93af47e5a76ea074b1036a8117f2648b4d288b375263bf417ea0",
+  "entry": "Leonida Legend v2",
+  "game": "Grand Theft Auto VI",
+  "platform": "PlayStation 5",
+  "summary": {
+    "byGrade": {
       "Bronze": 46,
       "Gold": 2,
       "Platinum": 1,
       "Silver": 6
     },
-    "guidesWithSource": 55,
+    "byKind": {
+      "activity": 11,
+      "collectible": 6,
+      "completion": 6,
+      "misc": 14,
+      "story": 18
+    },
+    "byStage": {
+      "S1": 7,
+      "S2": 8,
+      "S3": 8,
+      "S4": 7,
+      "S5": 7,
+      "S6": 15,
+      "S7": 3
+    },
+    "citedSteps": 155,
     "hidden": 28,
-    "missable": {
+    "missableTiers": {
+      "none": 44,
       "possibly": 2,
       "unconfirmed": 4,
       "watch": 5
     },
-    "steps": 165,
     "totalPoints": 1350,
+    "totalSteps": 155,
     "trophies": 55
-  },
-  "entry": "Leonida Legend v2",
-  "game": "Grand Theft Auto VI",
-  "platform": "PlayStation 5",
-  "stages": {
-    "S1": 7,
-    "S2": 8,
-    "S3": 8,
-    "S4": 7,
-    "S5": 7,
-    "S6": 15,
-    "S7": 3
   },
   "trophies": [
     {
@@ -41,63 +49,88 @@
       "missable": "",
       "name": "Vice Got a Price!",
       "points": 300,
+      "sources": [
+        1,
+        2,
+        3
+      ],
       "stage": "S7",
       "steps": 3
     },
     {
       "grade": "Bronze",
-      "hidden": false,
+      "hidden": true,
       "id": 2,
       "kind": "story",
       "missable": "",
       "name": "Just Like Paradise",
       "points": 15,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S1",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": false,
+      "hidden": true,
       "id": 3,
       "kind": "story",
       "missable": "",
       "name": "Paradise Lost",
       "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S1",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": false,
+      "hidden": true,
       "id": 4,
       "kind": "story",
       "missable": "",
       "name": "T**s Ass Drug Money",
       "points": 15,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S2",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": false,
+      "hidden": true,
       "id": 5,
       "kind": "story",
       "missable": "",
       "name": "Vice City, Baby!",
       "points": 15,
-      "stage": "S2",
-      "steps": 3
+      "sources": [
+        1,
+        2
+      ],
+      "stage": "S3",
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": false,
+      "hidden": true,
       "id": 6,
       "kind": "story",
       "missable": "",
       "name": "Top Of The World, Ma",
       "points": 15,
-      "stage": "S3",
-      "steps": 3
+      "sources": [
+        1,
+        3
+      ],
+      "stage": "S4",
+      "steps": 2
     },
     {
       "grade": "Gold",
@@ -107,6 +140,11 @@
       "missable": "",
       "name": "You Gotta Know When to Get Off",
       "points": 90,
+      "sources": [
+        1,
+        2,
+        3
+      ],
       "stage": "S4",
       "steps": 3
     },
@@ -118,8 +156,12 @@
       "missable": "",
       "name": "Trust",
       "points": 15,
+      "sources": [
+        1,
+        4
+      ],
       "stage": "S2",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
@@ -129,41 +171,57 @@
       "missable": "",
       "name": "Break the Bank",
       "points": 15,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S2",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": true,
+      "hidden": false,
       "id": 10,
       "kind": "story",
       "missable": "",
       "name": "Family Matters",
       "points": 15,
+      "sources": [
+        1,
+        4
+      ],
       "stage": "S2",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": true,
+      "hidden": false,
       "id": 11,
       "kind": "story",
       "missable": "",
       "name": "DWNFALL",
       "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S3",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
-      "hidden": true,
+      "hidden": false,
       "id": 12,
       "kind": "story",
       "missable": "",
       "name": "Hi-Jacked",
       "points": 15,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S3",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Bronze",
@@ -173,8 +231,12 @@
       "missable": "",
       "name": "Snow Storm",
       "points": 15,
-      "stage": "S3",
-      "steps": 3
+      "sources": [
+        1,
+        5
+      ],
+      "stage": "S4",
+      "steps": 2
     },
     {
       "grade": "Gold",
@@ -184,19 +246,29 @@
       "missable": "",
       "name": "A Long Road",
       "points": 90,
+      "sources": [
+        1,
+        2,
+        3
+      ],
       "stage": "S7",
-      "steps": 3
+      "steps": 4
     },
     {
       "grade": "Silver",
       "hidden": false,
       "id": 15,
-      "kind": "activity",
+      "kind": "collectible",
       "missable": "",
       "name": "Cunning Stunts",
       "points": 30,
+      "sources": [
+        1,
+        3,
+        7
+      ],
       "stage": "S5",
-      "steps": 3
+      "steps": 4
     },
     {
       "grade": "Bronze",
@@ -206,6 +278,10 @@
       "missable": "",
       "name": "Master of None",
       "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S1",
       "steps": 3
     },
@@ -217,8 +293,12 @@
       "missable": "",
       "name": "The Shootist",
       "points": 30,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S6",
-      "steps": 3
+      "steps": 4
     },
     {
       "grade": "Bronze",
@@ -228,6 +308,10 @@
       "missable": "",
       "name": "Top Fun",
       "points": 15,
+      "sources": [
+        1,
+        5
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -239,6 +323,10 @@
       "missable": "",
       "name": "Earn Cash, Not Kudos",
       "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -250,7 +338,11 @@
       "missable": "",
       "name": "Baited My Tackle",
       "points": 15,
-      "stage": "S2",
+      "sources": [
+        1,
+        4
+      ],
+      "stage": "S6",
       "steps": 3
     },
     {
@@ -261,6 +353,10 @@
       "missable": "",
       "name": "Stick Fiddler",
       "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S1",
       "steps": 3
     },
@@ -269,66 +365,91 @@
       "hidden": true,
       "id": 22,
       "kind": "story",
-      "missable": "watch",
+      "missable": "",
       "name": "Road to Rehabilitation",
       "points": 15,
-      "stage": "S3",
-      "steps": 3
+      "sources": [
+        1,
+        2
+      ],
+      "stage": "S2",
+      "steps": 2
     },
     {
       "grade": "Bronze",
       "hidden": true,
       "id": 23,
       "kind": "story",
-      "missable": "watch",
+      "missable": "",
       "name": "This Was No Boat Accident",
       "points": 15,
-      "stage": "S3",
-      "steps": 3
+      "sources": [
+        1,
+        4
+      ],
+      "stage": "S2",
+      "steps": 2
     },
     {
       "grade": "Bronze",
       "hidden": true,
       "id": 24,
       "kind": "story",
-      "missable": "watch",
+      "missable": "",
       "name": "The Lone Rider",
       "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S3",
-      "steps": 3
+      "steps": 2
     },
     {
       "grade": "Silver",
       "hidden": false,
       "id": 25,
-      "kind": "activity",
+      "kind": "story",
       "missable": "",
       "name": "Strangers & Freaks",
       "points": 30,
+      "sources": [
+        1,
+        2,
+        3
+      ],
       "stage": "S3",
-      "steps": 3
+      "steps": 4
     },
     {
       "grade": "Bronze",
       "hidden": true,
       "id": 26,
       "kind": "story",
-      "missable": "watch",
+      "missable": "",
       "name": "Supply & Demand",
       "points": 15,
-      "stage": "S4",
-      "steps": 3
+      "sources": [
+        1,
+        5
+      ],
+      "stage": "S3",
+      "steps": 2
     },
     {
       "grade": "Bronze",
       "hidden": true,
       "id": 27,
       "kind": "story",
-      "missable": "watch",
+      "missable": "",
       "name": "Spin On This!",
       "points": 15,
-      "stage": "S4",
-      "steps": 3
+      "sources": [
+        1,
+        4
+      ],
+      "stage": "S3",
+      "steps": 2
     },
     {
       "grade": "Bronze",
@@ -338,6 +459,11 @@
       "missable": "",
       "name": "Positive Mental Attitude",
       "points": 15,
+      "sources": [
+        1,
+        3,
+        7
+      ],
       "stage": "S5",
       "steps": 3
     },
@@ -345,11 +471,15 @@
       "grade": "Bronze",
       "hidden": true,
       "id": 29,
-      "kind": "misc",
+      "kind": "activity",
       "missable": "",
       "name": "Fair Game",
       "points": 15,
-      "stage": "S4",
+      "sources": [
+        1,
+        6
+      ],
+      "stage": "S3",
       "steps": 3
     },
     {
@@ -360,8 +490,12 @@
       "missable": "",
       "name": "Don't Touch My Deck",
       "points": 30,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S5",
-      "steps": 3
+      "steps": 4
     },
     {
       "grade": "Silver",
@@ -371,6 +505,10 @@
       "missable": "",
       "name": "You WAiNKer!",
       "points": 30,
+      "sources": [
+        1,
+        5
+      ],
       "stage": "S5",
       "steps": 3
     },
@@ -382,28 +520,40 @@
       "missable": "",
       "name": "One Last Thing",
       "points": 15,
-      "stage": "S5",
-      "steps": 3
-    },
-    {
-      "grade": "Bronze",
-      "hidden": true,
-      "id": 33,
-      "kind": "online",
-      "missable": "",
-      "name": "Hot Together",
-      "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S4",
       "steps": 3
     },
     {
       "grade": "Bronze",
       "hidden": true,
+      "id": 33,
+      "kind": "misc",
+      "missable": "watch",
+      "name": "Hot Together",
+      "points": 15,
+      "sources": [
+        1,
+        4
+      ],
+      "stage": "S2",
+      "steps": 3
+    },
+    {
+      "grade": "Bronze",
+      "hidden": false,
       "id": 34,
-      "kind": "online",
-      "missable": "",
+      "kind": "misc",
+      "missable": "watch",
       "name": "Retail Therapy",
       "points": 15,
+      "sources": [
+        1,
+        5
+      ],
       "stage": "S4",
       "steps": 3
     },
@@ -415,17 +565,25 @@
       "missable": "",
       "name": "Whip It Good",
       "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S1",
       "steps": 3
     },
     {
       "grade": "Bronze",
-      "hidden": true,
+      "hidden": false,
       "id": 36,
       "kind": "misc",
       "missable": "",
       "name": "Gunslinger",
       "points": 15,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S2",
       "steps": 3
     },
@@ -437,7 +595,12 @@
       "missable": "possibly",
       "name": "Catch Me If You Can",
       "points": 15,
-      "stage": "S6",
+      "sources": [
+        1,
+        3,
+        4
+      ],
+      "stage": "S4",
       "steps": 3
     },
     {
@@ -448,6 +611,11 @@
       "missable": "unconfirmed",
       "name": "Challenging Tank",
       "points": 15,
+      "sources": [
+        1,
+        4,
+        6
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -456,31 +624,43 @@
       "hidden": true,
       "id": 39,
       "kind": "misc",
-      "missable": "",
+      "missable": "watch",
       "name": "Sneakthief",
       "points": 15,
-      "stage": "S4",
+      "sources": [
+        1,
+        5
+      ],
+      "stage": "S6",
       "steps": 3
     },
     {
       "grade": "Silver",
       "hidden": false,
       "id": 40,
-      "kind": "misc",
+      "kind": "activity",
       "missable": "",
       "name": "Maximum Withdrawal",
       "points": 30,
+      "sources": [
+        1,
+        3
+      ],
       "stage": "S6",
-      "steps": 3
+      "steps": 4
     },
     {
       "grade": "Bronze",
-      "hidden": true,
+      "hidden": false,
       "id": 41,
       "kind": "misc",
       "missable": "",
       "name": "A Classic Blitz Play",
       "points": 15,
+      "sources": [
+        1,
+        5
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -492,6 +672,10 @@
       "missable": "",
       "name": "The Goodtime State",
       "points": 15,
+      "sources": [
+        1,
+        7
+      ],
       "stage": "S1",
       "steps": 3
     },
@@ -499,11 +683,15 @@
       "grade": "Bronze",
       "hidden": false,
       "id": 43,
-      "kind": "misc",
+      "kind": "activity",
       "missable": "",
       "name": "Pest Control",
       "points": 15,
-      "stage": "S5",
+      "sources": [
+        1,
+        2
+      ],
+      "stage": "S6",
       "steps": 3
     },
     {
@@ -511,9 +699,13 @@
       "hidden": true,
       "id": 44,
       "kind": "misc",
-      "missable": "",
+      "missable": "possibly",
       "name": "In The Beginning…",
       "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S1",
       "steps": 3
     },
@@ -525,17 +717,25 @@
       "missable": "",
       "name": "Capital Offense",
       "points": 15,
+      "sources": [
+        1,
+        5
+      ],
       "stage": "S6",
       "steps": 3
     },
     {
       "grade": "Bronze",
-      "hidden": false,
+      "hidden": true,
       "id": 46,
-      "kind": "activity",
+      "kind": "misc",
       "missable": "",
       "name": "Let’s Go Bowling",
       "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -544,21 +744,30 @@
       "hidden": true,
       "id": 47,
       "kind": "misc",
-      "missable": "unconfirmed",
+      "missable": "watch",
       "name": "Personal Best",
       "points": 15,
-      "stage": "S6",
+      "sources": [
+        1,
+        4
+      ],
+      "stage": "S4",
       "steps": 3
     },
     {
       "grade": "Bronze",
       "hidden": true,
       "id": 48,
-      "kind": "misc",
+      "kind": "completion",
       "missable": "unconfirmed",
       "name": "Actions Speak Louder",
       "points": 15,
-      "stage": "S6",
+      "sources": [
+        1,
+        2,
+        6
+      ],
+      "stage": "S5",
       "steps": 3
     },
     {
@@ -566,9 +775,14 @@
       "hidden": true,
       "id": 49,
       "kind": "misc",
-      "missable": "possibly",
+      "missable": "watch",
       "name": "Bad Luck, I Guess",
       "points": 15,
+      "sources": [
+        1,
+        4,
+        6
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -580,6 +794,10 @@
       "missable": "unconfirmed",
       "name": "The Truth Is Out There",
       "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -588,20 +806,28 @@
       "hidden": true,
       "id": 51,
       "kind": "misc",
-      "missable": "",
+      "missable": "unconfirmed",
       "name": "Ten Pin",
       "points": 15,
-      "stage": "S2",
+      "sources": [
+        1,
+        5
+      ],
+      "stage": "S6",
       "steps": 3
     },
     {
       "grade": "Bronze",
       "hidden": false,
       "id": 52,
-      "kind": "misc",
+      "kind": "completion",
       "missable": "",
       "name": "Dime on the Dollar",
       "points": 15,
+      "sources": [
+        1,
+        2
+      ],
       "stage": "S6",
       "steps": 3
     },
@@ -609,32 +835,44 @@
       "grade": "Bronze",
       "hidden": false,
       "id": 53,
-      "kind": "misc",
+      "kind": "completion",
       "missable": "",
       "name": "Treat Yo Self",
       "points": 15,
-      "stage": "S6",
-      "steps": 3
-    },
-    {
-      "grade": "Bronze",
-      "hidden": false,
-      "id": 54,
-      "kind": "misc",
-      "missable": "",
-      "name": "Little Boxes",
-      "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S7",
       "steps": 3
     },
     {
       "grade": "Bronze",
       "hidden": false,
+      "id": 54,
+      "kind": "completion",
+      "missable": "",
+      "name": "Little Boxes",
+      "points": 15,
+      "sources": [
+        1,
+        3
+      ],
+      "stage": "S5",
+      "steps": 3
+    },
+    {
+      "grade": "Bronze",
+      "hidden": false,
       "id": 55,
-      "kind": "collectible",
+      "kind": "activity",
       "missable": "",
       "name": "On the Spot",
       "points": 15,
+      "sources": [
+        1,
+        6
+      ],
       "stage": "S5",
       "steps": 3
     }

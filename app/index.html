@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Leonida Legend: a fully offline guide and progress tracker for the official 55 Grand Theft Auto VI trophies, with a cited guide for every trophy.">
+<meta name="description" content="Leonida Legend — a fully offline GTA 6 trophy guide and tracker: all 55 trophies, cited steps, a seven-stage roadmap and a missables board.">
 <title>Leonida Legend — GTA 6 Trophy Guide &amp; Tracker</title>
 <link rel="stylesheet" href="css/base.css">
 </head>
@@ -14,30 +14,25 @@
       <h1>Leonida Legend</h1>
       <p class="sub">GTA 6 Trophy Guide &amp; Tracker — 55 trophies, fully offline</p>
     </div>
-    <div class="masthead-tools">
+    <div class="masthead-actions">
       <button id="btn-export" type="button">Export progress</button>
-      <label class="import-label">Import progress <input id="file-import" type="file" accept=".json,application/json" hidden></label>
+      <label class="import-label" for="import-file">Import progress</label>
+      <input id="import-file" type="file" accept=".json,application/json" hidden>
       <button id="btn-reset" type="button">Reset</button>
     </div>
   </div>
+  <section id="audit" class="audit" aria-label="Data audit"></section>
+  <nav class="views" aria-label="Views">
+    <button type="button" data-view="ledger" class="view-btn is-active">Ledger</button>
+    <button type="button" data-view="roadmap" class="view-btn">Roadmap</button>
+    <button type="button" data-view="missables" class="view-btn">Missables</button>
+    <button type="button" data-view="sources" class="view-btn">Sources</button>
+  </nav>
 </header>
-
-<section id="audit" aria-label="List audit"></section>
-
-<nav class="views" aria-label="Views">
-  <button type="button" data-view="ledger" class="view-btn is-active">Ledger</button>
-  <button type="button" data-view="roadmap" class="view-btn">Roadmap</button>
-  <button type="button" data-view="missables" class="view-btn">Missables</button>
-  <button type="button" data-view="sources" class="view-btn">Sources</button>
-  <span id="progress-line" class="progress-line"></span>
-</nav>
-
 <main id="view"></main>
-
 <footer class="colophon">
-  <p>Leonida Legend works fully offline. Your progress lives only in this browser (localStorage) — export it to move it between devices.</p>
+  <p>Progress is stored only in this browser (localStorage). No account, no network, no tracking. Guide text is written for this tracker; every step cites the sources behind it.</p>
 </footer>
-
 <script src="js/data.js"></script>
 <script src="js/store.js"></script>
 <script src="js/filters.js"></script>
