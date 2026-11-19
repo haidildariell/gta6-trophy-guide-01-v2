@@ -1,125 +1,285 @@
-// Ledger view: the dense three-panel layout — planner and checklist on the left,
-// the open trophy's full cited guide in the middle, and the numbered sources on the right.
-var selectedId = 28;
-function rowHtml(t) {
-  var sealed = isSpoilerHidden(t);
-  var name = sealed ? "Sealed story trophy" : t.name;
-  var desc = sealed ? "Spoilers on: earn it in game to reveal its official text here." : t.description;
-  var checked = store.earned[t.id] ? " checked" : "";
-  return '<li class="trow' + (t.id === selectedId ? " sel" : "") + '" data-open="' + t.id + '">' +
-    '<input type="checkbox" data-earn="' + t.id + '"' + checked + ' aria-label="Mark earned">' +
-    "<span>" + medalHtml(t) + '<span class="nm">' + name + "</span>" + missBadge(t) +
-    (t.hidden && !sealed ? '<span class="badge b-hidden">HIDDEN</span>' : "") +
-    '<br><span class="ds">' + desc + "</span><br>" +
-    '<span class="stagechip">' + stageName(t.stage) + "</span> " + citesHtml(t.sources) +
-    "</span></li>";
+"use strict";
+/* Leonida Legend — Ledger view: filters + checklist | detail | next up + sources.
+   All three panes live on one screen so a trophy can be checked, read and
+   planned without leaving the view. */
+
+let selectedId = null;
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
 }
-function detailHtml(t) {
-  var sealed = isSpoilerHidden(t);
-  var h = '<h2>' + medalHtml(t) + (sealed ? "Sealed story trophy" : t.name) + missBadge(t) + "</h2>";
-  h += '<p class="muted">' + t.grade + " · " + t.points + " pts · " + KIND_LABELS[t.kind] + " · " + stageName(t.stage) + (t.hidden ? " · hidden trophy" : "") + "</p>";
-  if (sealed) {
-    h += '<p class="official">Spoilers are on, so the official description of this unearned story trophy stays sealed. Turn spoilers off in Sources &amp; Save, or earn it in game first.</p>';
-    return h;
-  }
-  h += '<p class="official">“' + t.description + '” ' + citesHtml([1]) + "</p>";
-  h += "<h3>In short</h3><p class='inshort'>" + t.guide.inShort + "</p>";
-  if (t.missable) {
-    var cls = t.missable === "missable" ? "missbox red" : (t.missable === "watch" ? "missbox" : "missbox grey");
-    var label = t.missable === "missable" ? "Possibly missable" : (t.missable === "watch" ? "Watch — easy to void" : "Unconfirmed trigger");
-    h += '<div class="' + cls + '"><strong>' + label + ".</strong> " + t.missableNote + " " + citesHtml(t.sources) + "</div>";
-  }
-  h += "<h3>Steps</h3><ol class='steps'>";
-  t.guide.steps.forEach(function (s) { h += "<li>" + s.text + " " + citesHtml(s.cites) + "</li>"; });
-  h += "</ol>";
-  h += '<p class="hiddennote">' + t.guide.note + "</p>";
-  if (t.target) {
-    var cur = store.counts[t.id] || 0;
-    h += '<div class="counter"><span>Your count</span><button data-count="-1" aria-label="Decrease">−</button><span class="n">' + cur + " / " + t.target + '</span><button data-count="1" aria-label="Increase">+</button><span class="muted">target from PSN progress ' + citesHtml([2]) + "</span></div>";
-  }
-  h += '<h3>Your notes</h3><textarea id="noteBox" placeholder="Your own notes for this trophy…">' + (store.notes[t.id] || "") + "</textarea>";
-  h += '<div class="btnrow"><button class="btn" data-toggle-earned>' + (store.earned[t.id] ? "Mark as not earned" : "Mark earned") + '</button><button class="btn ghost" data-save-note>Save note</button></div>';
-  return h;
+
+function medalDot(grade) {
+  const d = el("span", "medal medal-" + grade.toLowerCase());
+  d.title = grade;
+  return d;
 }
-function sourcesPanelHtml() {
-  var h = "<h2>Sources</h2><p class='muted'>All seven read 20 Nov 2026. Markers like [3] in every guide step point here.</p><ul class='srclist'>";
-  SOURCES.forEach(function (s) {
-    h += "<li><span class='srcn'>" + s.id + "</span><strong>" + s.name + "</strong> <span class='muted'>(" + s.site + ")</span><br>" + s.note + "<br><span class='muted'>Cited by " + citedBy(s.id) + " of 55 guides.</span></li>";
+
+function missableBadge(t) {
+  if (!t.missable) return null;
+  const labels = { possibly: "Possibly missable", watch: "Watch", unconfirmed: "Unconfirmed" };
+  return el("span", "badge badge-" + t.missable, labels[t.missable] || t.missable);
+}
+
+function citeMarks(step) {
+  const wrap = el("span", "cites");
+  (step.cite || []).forEach(function (n) {
+    wrap.appendChild(el("span", "cite", "[" + n + "]"));
   });
-  return h + "</ul>";
+  return wrap;
 }
-function renderLedger(root) {
-  var counts = kindCounts();
-  var chips = '<button class="chip' + (filters.kind === "all" ? " active" : "") + '" data-kind="all">All · ' + counts.all + "</button>";
-  Object.keys(KIND_LABELS).forEach(function (k) {
-    chips += '<button class="chip' + (filters.kind === k ? " active" : "") + '" data-kind="' + k + '">' + KIND_LABELS[k] + " · " + (counts[k] || 0) + "</button>";
+
+function renderLedger(root, trophies, rerender) {
+  root.innerHTML = "";
+  const layout = el("div", "ledger-grid");
+
+  /* ---- Left pane: filters + checklist ---- */
+  const left = el("section", "pane pane-left");
+  left.appendChild(buildFilterBar(trophies, rerender));
+  const list = el("div", "checklist");
+  const visible = trophies.filter(function (t) { return trophyMatches(t, filters); });
+  if (!visible.length) list.appendChild(el("p", "empty", "No trophies match these filters."));
+  visible.forEach(function (t) {
+    list.appendChild(checklistRow(t, rerender));
   });
-  var next = nextUpList().map(function (t) {
-    var nm = isSpoilerHidden(t) ? "Sealed story trophy" : t.name;
-    return "<li>" + medalHtml(t) + "<strong>" + nm + "</strong> " + missBadge(t) + "<br><span class='muted'>" + stageName(t.stage) + "</span></li>";
-  }).join("");
-  var list = roadmapOrder().filter(trophyMatches).map(rowHtml).join("");
-  var sel = TROPHIES.find(function (t) { return t.id === selectedId; }) || TROPHIES[0];
-  root.innerHTML =
-    '<div class="ledger">' +
-    '<section class="panel"><h2>Next Up</h2><ul class="nextup">' + (next || "<li>All 55 earned — platinum time.</li>") + "</ul>" +
-    '<input class="search" id="searchBox" type="search" placeholder="Search trophies…" value="' + filters.q.replace(/"/g, "&quot;") + '">' +
-    '<div class="chips">' + chips + "</div>" +
-    '<div class="toggles"><label><input type="checkbox" id="hideEarned"' + (filters.hideEarned ? " checked" : "") + "> Hide earned</label>" +
-    '<label>Spoilers <input type="checkbox" id="spoilerBox"' + (store.spoilers ? " checked" : "") + "> on</label></div>" +
-    '<p class="muted" id="listCount"></p><ul class="tlist">' + list + "</ul></section>" +
-    '<section class="panel detail" id="detailPanel">' + detailHtml(sel) + "</section>" +
-    '<aside class="panel">' + sourcesPanelHtml() + "</aside></div>";
-  var shown = roadmapOrder().filter(trophyMatches).length;
-  document.getElementById("listCount").textContent = shown + " of 55 shown";
-  bindLedger(root);
+  left.appendChild(list);
+  layout.appendChild(left);
+
+  /* ---- Middle pane: detail ---- */
+  const mid = el("section", "pane pane-mid");
+  const current = trophies.find(function (t) { return t.id === selectedId; }) || visible[0] || trophies[0];
+  if (current) {
+    selectedId = current.id;
+    mid.appendChild(buildDetail(current, rerender));
+  }
+  layout.appendChild(mid);
+
+  /* ---- Right pane: next up + sources rail ---- */
+  const right = el("aside", "pane pane-right");
+  right.appendChild(buildNextUp(trophies, rerender));
+  right.appendChild(buildSourcesRail(trophies));
+  layout.appendChild(right);
+
+  root.appendChild(layout);
+
+  /* Keep the selected checklist row in view inside the scrolling list. */
+  const selRow = list.querySelector(".row.is-selected");
+  if (selRow) {
+    const listRect = list.getBoundingClientRect();
+    const rowRect = selRow.getBoundingClientRect();
+    list.scrollTop += rowRect.top - listRect.top - 60;
+  }
 }
-function refreshDetail() {
-  var sel = TROPHIES.find(function (t) { return t.id === selectedId; }) || TROPHIES[0];
-  var panel = document.getElementById("detailPanel");
-  if (panel) panel.innerHTML = detailHtml(sel);
-}
-function bindLedger(root) {
-  root.querySelectorAll("[data-kind]").forEach(function (b) {
-    b.addEventListener("click", function () { filters.kind = b.getAttribute("data-kind"); renderLedger(root); });
-  });
-  var search = document.getElementById("searchBox");
+
+function buildFilterBar(trophies, rerender) {
+  const bar = el("div", "filter-bar");
+
+  const search = el("input", "search");
+  search.type = "search";
+  search.placeholder = "Search name, description, kind…";
+  search.value = filters.text;
   search.addEventListener("input", function () {
-    filters.q = search.value;
-    var pos = search.selectionStart;
-    renderLedger(root);
-    var again = document.getElementById("searchBox");
-    again.focus(); again.setSelectionRange(pos, pos);
+    filters.text = search.value;
+    rerender(false);
+    const again = document.querySelector(".search");
+    if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
   });
-  document.getElementById("hideEarned").addEventListener("change", function (e) { filters.hideEarned = e.target.checked; renderLedger(root); });
-  document.getElementById("spoilerBox").addEventListener("change", function (e) { store.spoilers = e.target.checked; storeSave(); renderLedger(root); });
-  root.querySelectorAll("[data-open]").forEach(function (row) {
-    row.addEventListener("click", function (e) {
-      if (e.target.tagName === "INPUT") return;
-      selectedId = Number(row.getAttribute("data-open"));
-      root.querySelectorAll(".trow").forEach(function (r) { r.classList.toggle("sel", Number(r.getAttribute("data-open")) === selectedId); });
-      refreshDetail(); bindDetail(root);
-    });
+  bar.appendChild(search);
+
+  bar.appendChild(chipRow("Kind", KINDS, filters.kinds, function (v) {
+    filters.kinds.has(v) ? filters.kinds.delete(v) : filters.kinds.add(v);
+    rerender();
+  }));
+  bar.appendChild(chipRow("Grade", GRADES, filters.grades, function (v) {
+    filters.grades.has(v) ? filters.grades.delete(v) : filters.grades.add(v);
+    rerender();
+  }));
+
+  const stageSel = el("select", "stage-select");
+  const all = el("option", "", "All stages");
+  all.value = "";
+  stageSel.appendChild(all);
+  STAGES.forEach(function (s) {
+    const o = el("option", "", s.id + " · " + s.name);
+    o.value = s.id;
+    stageSel.appendChild(o);
   });
-  root.querySelectorAll("[data-earn]").forEach(function (box) {
-    box.addEventListener("change", function () { setEarned(Number(box.getAttribute("data-earn")), box.checked); updateHeader(); refreshDetail(); bindDetail(root); });
-  });
-  bindDetail(root);
+  stageSel.value = filters.stage;
+  stageSel.addEventListener("change", function () { filters.stage = stageSel.value; rerender(); });
+  bar.appendChild(stageSel);
+
+  const hideLab = el("label", "toggle");
+  const hideBox = el("input");
+  hideBox.type = "checkbox";
+  hideBox.checked = filters.hideEarned;
+  hideBox.addEventListener("change", function () { filters.hideEarned = hideBox.checked; rerender(); });
+  hideLab.appendChild(hideBox);
+  hideLab.appendChild(el("span", "", "Hide earned"));
+  bar.appendChild(hideLab);
+
+  const spoilLab = el("label", "toggle");
+  const spoilBox = el("input");
+  spoilBox.type = "checkbox";
+  spoilBox.checked = filters.spoilers;
+  spoilBox.addEventListener("change", function () { filters.spoilers = spoilBox.checked; rerender(); });
+  spoilLab.appendChild(spoilBox);
+  spoilLab.appendChild(el("span", "", "Spoiler seal"));
+  bar.appendChild(spoilLab);
+
+  return bar;
 }
-function bindDetail(root) {
-  var panel = document.getElementById("detailPanel");
-  if (!panel) return;
-  panel.querySelectorAll("[data-count]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var t = TROPHIES.find(function (x) { return x.id === selectedId; });
-      var next = Math.max(0, Math.min(t.target || 0, (store.counts[t.id] || 0) + Number(b.getAttribute("data-count"))));
-      setCount(t.id, next);
-      if (t.target && next >= t.target) setEarned(t.id, true);
-      updateHeader(); refreshDetail(); bindDetail(root);
+
+function checklistRow(t, rerender) {
+  const row = el("div", "row" + (t.id === selectedId ? " is-selected" : "") + (store.isEarned(t.id) ? " is-earned" : ""));
+  const box = el("input", "row-check");
+  box.type = "checkbox";
+  box.checked = store.isEarned(t.id);
+  box.setAttribute("aria-label", "Mark " + t.name + " earned");
+  box.addEventListener("click", function (ev) { ev.stopPropagation(); });
+  box.addEventListener("change", function () { store.setEarned(t.id, box.checked); rerender(); });
+  row.appendChild(box);
+  row.appendChild(medalDot(t.grade));
+
+  const main = el("span", "row-main");
+  if (isSealed(t)) {
+    main.appendChild(el("span", "sealed-name", "— sealed —"));
+    main.appendChild(el("span", "seal-stamp", "SEALED"));
+  } else {
+    main.appendChild(el("span", "row-name", t.name));
+  }
+  let meta = t.grade + " · " + t.points + " pts · " + t.stage;
+  if (t.target && store.getCount(t.id) > 0 && !store.isEarned(t.id)) {
+    meta += " · " + store.getCount(t.id) + "/" + t.target;
+  }
+  main.appendChild(el("span", "row-meta", meta));
+  row.appendChild(main);
+
+  const badge = missableBadge(t);
+  if (badge) row.appendChild(badge);
+
+  row.addEventListener("click", function () { selectedId = t.id; rerender(); });
+  return row;
+}
+
+function buildDetail(t, rerender) {
+  const d = el("article", "detail");
+  const head = el("div", "detail-head");
+  head.appendChild(medalDot(t.grade));
+  if (isSealed(t)) {
+    head.appendChild(el("h2", "sealed-name", "— sealed trophy —"));
+    head.appendChild(el("span", "seal-stamp big", "SEALED"));
+  } else {
+    head.appendChild(el("h2", "", t.name));
+  }
+  d.appendChild(head);
+
+  d.appendChild(el("p", "detail-meta",
+    t.grade + " · " + t.points + " points · " + stageOf(t.stage).id + " " + stageOf(t.stage).name +
+    " · " + t.kind + (t.hidden ? " · hidden trophy" : "")));
+
+  if (!isSealed(t)) {
+    d.appendChild(el("p", "official-desc", t.description));
+    d.appendChild(el("h3", "", "In short"));
+    d.appendChild(el("p", "in-short", t.guide.inShort));
+    d.appendChild(el("h3", "", "Steps"));
+    const ol = el("ol", "steps");
+    t.guide.steps.forEach(function (step) {
+      const li = el("li", "step");
+      li.appendChild(el("span", "step-text", step.text + " "));
+      li.appendChild(citeMarks(step));
+      ol.appendChild(li);
     });
+    d.appendChild(ol);
+  } else {
+    d.appendChild(el("p", "in-short", "This trophy is hidden and the spoiler seal is on. Earn it, or switch the seal off, to reveal its guide."));
+  }
+
+  if (t.missable) {
+    const box = el("div", "missable-box missable-" + t.missable);
+    box.appendChild(el("strong", "", (missableBadge(t) || {}).textContent || t.missable));
+    box.appendChild(el("p", "", t.missableNote || ""));
+    d.appendChild(box);
+  }
+
+  if (t.target) {
+    const counter = el("div", "counter");
+    counter.appendChild(el("label", "", "Your count (target " + t.target + ")"));
+    const input = el("input", "count-input");
+    input.type = "number";
+    input.min = "0";
+    input.value = String(store.getCount(t.id) || "");
+    input.placeholder = "0";
+    input.addEventListener("change", function () { store.setCount(t.id, input.value); rerender(); });
+    counter.appendChild(input);
+    d.appendChild(counter);
+  }
+
+  const noteWrap = el("div", "notes");
+  noteWrap.appendChild(el("label", "", "Your notes"));
+  const area = el("textarea", "note-area");
+  area.rows = 3;
+  area.value = store.getNote(t.id);
+  area.placeholder = "Private notes for this trophy…";
+  area.addEventListener("change", function () { store.setNote(t.id, area.value); });
+  noteWrap.appendChild(area);
+  d.appendChild(noteWrap);
+
+  const earnBtn = el("button", "earn-btn" + (store.isEarned(t.id) ? " is-earned" : ""),
+    store.isEarned(t.id) ? "Earned ✓ — tap to undo" : "Mark as earned");
+  earnBtn.type = "button";
+  earnBtn.addEventListener("click", function () { store.toggleEarned(t.id); rerender(); });
+  d.appendChild(earnBtn);
+
+  return d;
+}
+
+function nextUpReason(t) {
+  if (t.missable === "possibly") return "Possibly missable — do it before the story moves on";
+  if (t.missable === "watch") return "On the missable watch list";
+  if (t.target && store.getCount(t.id) > 0) return "In progress: " + store.getCount(t.id) + " / " + t.target;
+  return stageOf(t.stage).name + " · " + t.grade + " (" + t.points + " pts)";
+}
+
+function buildNextUp(trophies, rerender) {
+  const panel = el("div", "next-up");
+  panel.appendChild(el("h3", "", "Next Up"));
+  const upcoming = trophies
+    .filter(function (t) { return !store.isEarned(t.id) && t.id !== 1; })
+    .sort(function (a, b) {
+      if (a.stage !== b.stage) return a.stage < b.stage ? -1 : 1;
+      return GRADE_ORDER[b.grade] - GRADE_ORDER[a.grade];
+    })
+    .slice(0, 5);
+  if (!upcoming.length) panel.appendChild(el("p", "empty", "Everything is earned. Legend status achieved."));
+  upcoming.forEach(function (t) {
+    const item = el("button", "next-item");
+    item.type = "button";
+    item.appendChild(medalDot(t.grade));
+    const txt = el("span", "next-text");
+    txt.appendChild(el("span", "next-name", displayName(t)));
+    txt.appendChild(el("span", "next-reason", nextUpReason(t)));
+    item.appendChild(txt);
+    item.addEventListener("click", function () { selectedId = t.id; rerender(); });
+    panel.appendChild(item);
   });
-  var toggle = panel.querySelector("[data-toggle-earned]");
-  if (toggle) toggle.addEventListener("click", function () { setEarned(selectedId, !store.earned[selectedId]); updateHeader(); renderLedger(document.getElementById("viewRoot")); });
-  var save = panel.querySelector("[data-save-note]");
-  if (save) save.addEventListener("click", function () { setNote(selectedId, document.getElementById("noteBox").value.trim()); save.textContent = "Saved ✓"; });
+  return panel;
+}
+
+function buildSourcesRail(trophies) {
+  const rail = el("div", "sources-rail");
+  rail.appendChild(el("h3", "", "Sources"));
+  const counts = citationCounts(trophies);
+  SOURCES.forEach(function (s) {
+    const row = el("div", "source-row");
+    row.appendChild(el("span", "source-n", "[" + s.n + "]"));
+    const txt = el("span", "source-text");
+    txt.appendChild(el("span", "source-name", s.name));
+    txt.appendChild(el("span", "source-cited", "cited by " + (counts[s.n] || 0) + " of 55 guides"));
+    row.appendChild(txt);
+    rail.appendChild(row);
+  });
+  return rail;
 }

@@ -1,48 +1,61 @@
-// Filtering for the ledger list: kind chips, grade, text search, earned state, and the spoiler rule.
-// Spoiler rule: with spoilers ON, a story trophy you have not earned yet shows as a sealed row in the list —
-// its name and description stay hidden until you earn it or turn spoilers off.
-var KIND_LABELS = {
-  story: "Story", side: "Side strands", activities: "Activities", collectibles: "Collectibles",
-  crime: "Crime", riddles: "Riddles & moments", money: "Money"
+"use strict";
+/* Leonida Legend — filter state for the Ledger checklist. */
+
+const KINDS = ["story", "collectible", "activity", "online", "completion", "misc"];
+const GRADES = ["Platinum", "Gold", "Silver", "Bronze"];
+
+const filters = {
+  text: "",
+  kinds: new Set(),
+  grades: new Set(),
+  stage: "",
+  hideEarned: false,
+  spoilers: false
 };
-var filters = { kind: "all", grade: "all", q: "", state: "all", hideEarned: false };
-function isSpoilerHidden(t) {
-  return store.spoilers && t.kind === "story" && !store.earned[t.id];
-}
-function trophyMatches(t) {
-  if (filters.kind !== "all" && t.kind !== filters.kind) return false;
-  if (filters.grade !== "all" && t.grade !== filters.grade) return false;
-  if (filters.state === "earned" && !store.earned[t.id]) return false;
-  if (filters.state === "unearned" && store.earned[t.id]) return false;
-  if (filters.hideEarned && store.earned[t.id]) return false;
-  if (filters.q) {
-    var hay = (t.name + " " + t.description + " " + t.kind + " " + t.stage).toLowerCase();
-    if (hay.indexOf(filters.q.toLowerCase()) < 0) return false;
+
+function trophyMatches(t, f) {
+  if (f.hideEarned && store.isEarned(t.id)) return false;
+  if (f.stage && t.stage !== f.stage) return false;
+  if (f.kinds.size && !f.kinds.has(t.kind)) return false;
+  if (f.grades.size && !f.grades.has(t.grade)) return false;
+  if (f.text) {
+    const hay = (t.name + " " + t.description + " " + t.kind + " " + t.grade).toLowerCase();
+    if (hay.indexOf(f.text.toLowerCase()) === -1) return false;
   }
   return true;
 }
-function kindCounts() {
-  var out = { all: TROPHIES.length };
-  TROPHIES.forEach(function (t) { out[t.kind] = (out[t.kind] || 0) + 1; });
-  return out;
+
+function clearFilters() {
+  filters.text = "";
+  filters.kinds.clear();
+  filters.grades.clear();
+  filters.stage = "";
+  filters.hideEarned = false;
 }
-function roadmapOrder() {
-  var rank = {};
-  STAGES.forEach(function (s, i) { rank[s.id] = i; });
-  return TROPHIES.slice().sort(function (a, b) {
-    return (rank[a.stage] - rank[b.stage]) || (a.id - b.id);
+
+/* A hidden trophy is sealed while spoilers are on and it is not yet earned. */
+function isSealed(t) {
+  return filters.spoilers && t.hidden && !store.isEarned(t.id);
+}
+
+function displayName(t) {
+  return isSealed(t) ? "Sealed trophy" : t.name;
+}
+
+function chipRow(label, values, activeSet, onToggle) {
+  const wrap = document.createElement("div");
+  wrap.className = "chip-row";
+  const lab = document.createElement("span");
+  lab.className = "chip-label";
+  lab.textContent = label;
+  wrap.appendChild(lab);
+  values.forEach(function (v) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (activeSet.has(v) ? " is-on" : "");
+    b.textContent = v;
+    b.addEventListener("click", function () { onToggle(v); });
+    wrap.appendChild(b);
   });
-}
-function nextUpList() {
-  return roadmapOrder().filter(function (t) { return !store.earned[t.id]; }).slice(0, 3);
-}
-function missBadge(t) {
-  if (t.missable === "missable") return '<span class="badge b-missable">POSSIBLY MISSABLE</span>';
-  if (t.missable === "watch") return '<span class="badge b-watch">WATCH</span>';
-  if (t.missable === "unconfirmed") return '<span class="badge b-unconfirmed">UNCONFIRMED</span>';
-  return "";
-}
-function medalHtml(t) {
-  var letter = { platinum: "P", gold: "G", silver: "S", bronze: "B" }[t.grade];
-  return '<span class="medal m-' + t.grade + '">' + letter + "</span>";
+  return wrap;
 }

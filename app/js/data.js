@@ -1,43 +1,65 @@
-// Data layer: the seven numbered sources, the roadmap stages, and the trophy list loader.
-// Source sites are named as plain text only; this app never contacts the network at runtime
-// beyond fetching its own trophies.json sitting next to the page.
-var SOURCES = [
-  { id: 1, name: "Exophase", site: "exophase.com", note: "The official PS5 trophy list: names, descriptions, and grades as published for the platform." },
-  { id: 2, name: "PSNProfiles", site: "psnprofiles.com", note: "Trophy list mirror plus PSN progress targets and counters for counted trophies." },
-  { id: 3, name: "PowerPyx", site: "powerpyx.com", note: "GTA 6 Trophy Guide & Roadmap: ordering, strand flow, and clean-up advice." },
-  { id: 4, name: "PlayStationTrophies.org", site: "playstationtrophies.org", note: "GTA 6 guide: activity, race, shooting-range, and crime trophy methods." },
-  { id: 5, name: "TrueTrophies", site: "truetrophies.com", note: "GTA 6 trophies: collectible, location, and exploration coverage." },
-  { id: 6, name: "KeenGamer", site: "keengamer.com", note: "GTA 6 platinum roadmap: stage order, money pacing, and endgame planning." },
-  { id: 7, name: "GTA Wiki", site: "gta.fandom.com", note: "Mission and activity reference for Leonida: story order and strand structure." }
+"use strict";
+/* Leonida Legend — static reference data: sources and roadmap stages.
+   Trophy data itself is never inlined here; it is loaded from data/trophies.json. */
+
+const SOURCES = [
+  { n: 1, name: "Exophase", kind: "Official trophy list mirror", read: "20 Nov 2026" },
+  { n: 2, name: "PSNProfiles", kind: "Community guide", read: "20 Nov 2026" },
+  { n: 3, name: "PowerPyx", kind: "Guide", read: "20 Nov 2026" },
+  { n: 4, name: "PlayStationTrophies.org", kind: "Guide forum", read: "20 Nov 2026" },
+  { n: 5, name: "TrueTrophies", kind: "Guide", read: "20 Nov 2026" },
+  { n: 6, name: "KeenGamer", kind: "News and guides", read: "20 Nov 2026" },
+  { n: 7, name: "GTA Wiki", kind: "World reference", read: "20 Nov 2026" }
 ];
-var STAGES = [
-  { id: "S1", name: "First hours", blurb: "Opening mission, Chapter 1, first activities, and the two early moments we flag as possibly missable." },
-  { id: "S2", name: "Story — first half", blurb: "Chapters 2 and 3 plus the first stranger strands that open alongside them." },
-  { id: "S3", name: "Story — second half & side strands", blurb: "Chapter 4, the remaining named missions, and the rest of the stranger strands." },
-  { id: "S4", name: "Story finish", blurb: "The final mission and the late, vague story-adjacent trophies to test while the world is fresh." },
-  { id: "S5", name: "Collectibles & counts", blurb: "Meditation spots, card sets, WAiNK locations, vehicles, areas, garages, and registrations." },
-  { id: "S6", name: "Activities & mastery", blurb: "Stunts, the Shooting Range, races, challenges, and the crime set-pieces." },
-  { id: "S7", name: "100% & the Platinum", blurb: "The long money grind, the 100% completion gold, and the platinum itself." }
+
+const STAGES = [
+  { id: "S1", name: "First hours", blurb: "Arrive in Leonida, learn the systems, and bank the easy first-hour trophies." },
+  { id: "S2", name: "Story — first half", blurb: "Chapters 2 and 3, plus the early named missions and partner tricks." },
+  { id: "S3", name: "Story — second half & side strands", blurb: "Chapter 4, the big set-piece missions, and the first stranger strands." },
+  { id: "S4", name: "Story finish", blurb: "Close the remaining strands and finish the final mission with a save to spare." },
+  { id: "S5", name: "Collectibles & counts", blurb: "Cards, spots, locations and counters — swept county by county." },
+  { id: "S6", name: "Activities & mastery", blurb: "Ranges, races, robberies and the vague one-off feats that need a plan." },
+  { id: "S7", name: "100% & Platinum", blurb: "Buy out the garages, close the 100 percent checklist, and take the Platinum." }
 ];
-var TROPHIES = [];
-function stageName(id) {
-  for (var i = 0; i < STAGES.length; i++) if (STAGES[i].id === id) return STAGES[i].id + " · " + STAGES[i].name;
-  return id;
+
+const GRADE_ORDER = { Platinum: 4, Gold: 3, Silver: 2, Bronze: 1 };
+const GRADE_POINTS = { Platinum: 300, Gold: 90, Silver: 30, Bronze: 15 };
+
+function stageOf(id) {
+  return STAGES.find(function (s) { return s.id === id; }) || STAGES[0];
 }
+
+function sourceOf(n) {
+  return SOURCES.find(function (s) { return s.n === n; }) || null;
+}
+
+/* "[3] PowerPyx" style label for a source number. */
+function sourceLabel(n) {
+  const s = sourceOf(n);
+  return s ? "[" + s.n + "] " + s.name : "[" + n + "]";
+}
+
+/* Load the official trophy list. Returns a promise for the trophies array. */
 function loadTrophies() {
-  return fetch("data/trophies.json").then(function (r) {
-    if (!r.ok) throw new Error("trophies.json failed to load");
-    return r.json();
-  }).then(function (doc) {
-    TROPHIES = doc.trophies.slice().sort(function (a, b) { return a.id - b.id; });
-    return TROPHIES;
+  return fetch("data/trophies.json")
+    .then(function (res) {
+      if (!res.ok) throw new Error("trophies.json failed to load: " + res.status);
+      return res.json();
+    })
+    .then(function (doc) { return doc.trophies; });
+}
+
+/* Citation counts: how many of the 55 guides cite each source number. */
+function citationCounts(trophies) {
+  const counts = {};
+  SOURCES.forEach(function (s) { counts[s.n] = 0; });
+  trophies.forEach(function (t) {
+    const cited = new Set();
+    (t.sources || []).forEach(function (n) { cited.add(n); });
+    (t.guide.steps || []).forEach(function (step) {
+      (step.cite || []).forEach(function (n) { cited.add(n); });
+    });
+    cited.forEach(function (n) { if (counts[n] !== undefined) counts[n] += 1; });
   });
-}
-function citedBy(sourceId) {
-  var n = 0;
-  TROPHIES.forEach(function (t) { if (t.sources.indexOf(sourceId) >= 0) n++; });
-  return n;
-}
-function citesHtml(cites) {
-  return cites.map(function (c) { return '<span class="cite">[' + c + "]</span>"; }).join(" ");
+  return counts;
 }

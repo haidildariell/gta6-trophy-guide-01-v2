@@ -1,48 +1,81 @@
-# Leonida Legend — GTA 6 Trophy Guide & Tracker
+# Leonida Legend v2 — GTA 6 Trophy Guide & Tracker
 
-[![make.fun · gta6-trophy-guide-01](https://make.fun/badge/gta6-trophy-guide-01.svg)](https://make.fun/bounty/gta6-trophy-guide-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
-[![rank](https://make.fun/badge/gta6-trophy-guide-01/haidildariell/gta6-trophy-guide-01-v2/rank.svg)](https://make.fun/bounty/gta6-trophy-guide-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
-[![reward](https://make.fun/badge/gta6-trophy-guide-01/haidildariell/gta6-trophy-guide-01-v2/reward.svg)](https://make.fun/bounty/gta6-trophy-guide-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
+[![Watch the build](https://make.fun/api/badges/gta6-trophy-guide-01/live.gif)](https://make.fun/bounty/gta6-trophy-guide-01) [![Leaderboard](https://make.fun/api/badges/gta6-trophy-guide-01/leaderboard.svg)](https://make.fun/bounty/gta6-trophy-guide-01) [![Bounty](https://make.fun/api/badges/gta6-trophy-guide-01/bounty.svg)](https://make.fun/bounty/gta6-trophy-guide-01)
 
 Bounty: https://make.fun/bounty/gta6-trophy-guide-01
 
-A fully offline web app that tracks all **55 official PlayStation 5 trophies** for Grand Theft Auto VI and guides you, stage by stage, to the platinum. No build step, no network at runtime, no game artwork or logos — just static files under `app/`.
+An offline trophy guide and progress tracker for the official 55-trophy
+Grand Theft Auto VI list (PlayStation 5): 1 Platinum, 2 Gold, 6 Silver,
+46 Bronze — 28 of them hidden.
 
-## What it does
+## What it is
 
-- **Ledger (3-panel)** — Next Up planner (the next 3 unearned trophies in roadmap order), kind chips with counts, search, grade breakdown, and the full checklist on the left; the open trophy's complete guide in the middle; the numbered Sources panel on the right.
-- **Cited guides** — every trophy has a short summary plus numbered steps, and **every step carries a citation marker** like [1] or [3] pointing at the Sources panel. 167 steps, all cited. Steps that are only our own reading of the official description say so in plain words.
-- **Audit strip** — one line, computed live from the data: 55 official · 1P 2G 6S 46B · 28 hidden · 55/55 guides cite a source · 167/167 steps cited · 7 sources read 20 Nov 2026 · 2 possibly missable · 5 watch · 4 unconfirmed.
-- **Roadmap** — seven stages (S1 First hours → S7 100% & the Platinum) with all 55 trophies placed exactly once and per-stage progress bars. Built from the official descriptions.
-- **Missables, tiered** — built from the official descriptions: 2 *possibly missable* (every meditation spot including an early-chapter spot; the Ocean Beach cocktail moment), 5 *watch* (partner conditions, a unique animal, fail-then-pass, no-detection), 4 *unconfirmed* (descriptions too vague to act on — flagged honestly instead of inventing a method).
-- **Tracker** — earned checkboxes, per-trophy counters against PSN targets (your count / target), personal notes, and a header with earned count, grade split, and trophy points (platinum 300, gold 90, silver 30, bronze 15). Progress is stored in `localStorage` and can be **exported / imported as JSON** or reset.
-- **Spoiler setting** — with spoilers on, unearned story trophies are sealed in the ledger: no name or description until you earn them or switch spoilers off.
-- **Screenshot-friendly URLs** — `?demo=1` seeds a mid-run tracker (only when storage is empty), `?view=ledger|roadmap|missables|sources`, `?open=<id>`, `?spoilers=on|off`. Keyboard: `1–4` switch views, `/` jumps to search.
+Open `app/index.html` and you get the whole hunt on one screen:
 
-## Run it
+- **Ledger** — the main view. A filterable checklist of all 55 trophies
+  (search, kind and grade chips, stage filter, hide-earned), a full guide
+  pane for the selected trophy, and a right rail with your next five
+  trophies plus the source list. Every guide step ends with citation
+  markers, e.g. [3][7], pointing at the numbered sources behind it.
+- **Roadmap** — the seven-stage route: first hours, story halves, story
+  finish, collectibles and counts, activities and mastery, then the
+  100 percent and Platinum sweep, each with its own progress bar.
+- **Missables** — nothing on the list is confirmed missable, so this page
+  tiers the caution cases honestly: 2 possibly missable, 5 to watch,
+  4 unconfirmed, each with a note and a "sources disagree" tag where the
+  guides genuinely conflict.
+- **Sources** — the seven sources behind the guides, when they were read
+  (20 Nov 2026), and how many of the 55 guides cite each one.
 
-Serve the `app/` folder with any static server, for example:
+The audit strip under the header recomputes the list's vital statistics
+from the data at runtime — totals, hidden count, citation coverage and
+missable tiers — so what you see is always what the data says.
+
+## Features
+
+- Fully offline: no accounts, no network calls beyond the local files.
+- Progress tracking in `localStorage`: earned checkboxes, per-trophy
+  counters for count-based trophies, and private notes per trophy.
+- Export, import and reset your progress as JSON from the header.
+- PSN points and level computed from your earned set.
+- Spoiler seal: hidden trophies can be shown as sealed placeholders
+  until you earn them (toggle in the Ledger, or `?spoilers=on`).
+- Handy URL parameters: `?demo=1` seeds sample progress, `?view=` picks
+  the opening view, `?open=<id>` selects a trophy in the Ledger.
+
+## How to run
+
+Any static server works. With Node (no dependencies, no build step):
 
 ```sh
-node serve.ts          # preview server on http://localhost:8080/
+node serve.ts
+# then open http://localhost:8080
 ```
 
-or `python3 -m http.server -d app 8080`. Then open the page in a browser.
-
-To package the entry the way the bounty scorer does:
+Or serve the folder directly, for example:
 
 ```sh
-MAKEFUN_OUTPUT_DIR=out node main.ts   # validates trophies.json, copies app/ + screenshots/, writes dossier.json
+python3 -m http.server 8091 --directory app
 ```
 
-## Sources (read 20 Nov 2026)
+Screenshots of each view live in `screenshots/`; `shots.json` records
+exactly which URL produced each one, so they can be re-shot at any time.
 
-1. Exophase — official PS5 trophy list
-2. PSNProfiles — trophy list & PSN progress targets
-3. PowerPyx — GTA 6 Trophy Guide & Roadmap
-4. PlayStationTrophies.org — GTA 6 guide
-5. TrueTrophies — GTA 6 trophies
-6. KeenGamer — GTA 6 platinum roadmap
-7. GTA Wiki (gta.fandom.com) — missions & activities
+To rebuild and validate the entry dossier:
 
-Guide wording is our own; trophy names and descriptions are the official list [1].
+```sh
+MAKEFUN_OUTPUT_DIR=out node main.ts
+```
+
+`main.ts` validates the trophy data (exactly 55 trophies, every guide
+step cited) and writes a deterministic `entry.json` summary — running
+it twice gives byte-identical output.
+
+## Data & sources
+
+Trophy names, descriptions and grades in `app/data/trophies.json` are
+the official list values. The guides themselves are written for this
+tracker: every step cites the sources behind it by number — 1 Exophase,
+2 PSNProfiles, 3 PowerPyx, 4 PlayStationTrophies.org, 5 TrueTrophies,
+6 KeenGamer, 7 GTA Wiki — all read on 20 Nov 2026. Where sources
+disagree, the tracker says so rather than quietly picking a side.
